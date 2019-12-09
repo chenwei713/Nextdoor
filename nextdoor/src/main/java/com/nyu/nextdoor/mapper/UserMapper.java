@@ -30,4 +30,19 @@ public interface UserMapper {
     //@Options(useGeneratedKeys = true, keyColumn = "user_id", keyProperty = "userId")
     void addNewUser(User user);
 
+    @Update("UPDATE `nextdoor`.`user` " +
+            "SET" +
+            "`user_first_name` = #{userFirstName}, " +
+            "`user_last_name` = #{userLastName}, " +
+            "`user_street` = #{userStreet}, " +
+            "`user_city` = #{userCity}, " +
+            "`user_state` = #{userState}, " +
+            "`longitude` = #{longitude}, " +
+            "`latitude` = #{latitude}, " +
+            "`user_profile` = #{userProfile}, " +
+            "`user_photo_url` = #{userPhotoUrl}, " +
+            "`telephone_number` = #{telephoneNumber} " +
+            "WHERE user_id = #{userId}")
+    void updateUser(User user);
+
 }

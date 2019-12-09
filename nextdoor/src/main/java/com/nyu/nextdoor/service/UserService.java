@@ -28,4 +28,8 @@ public class UserService {
         return userMapper.getUserByAccountName(user);
     }
 
+    public void updateUser(User user) {
+        userMapper.updateUser(user);
+    }
+
 }
