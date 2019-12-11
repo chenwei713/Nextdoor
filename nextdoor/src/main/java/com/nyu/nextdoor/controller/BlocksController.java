@@ -30,6 +30,9 @@ public class BlocksController {
         this.authenticationService = authenticationService;
     }
 
+    /*
+    *   get all blocks
+    * */
     @CheckLogin
     @GetMapping("/all")
     public Object getAll() {
@@ -37,6 +40,10 @@ public class BlocksController {
         return new ResponseEntity<>(blocksList, HttpStatus.OK);
     }
 
+
+    /*
+    *   send an application for blocks
+    * */
     @CheckLogin
     @PostMapping("/application/{blocksId}")
     public Object applyBlocks(@PathVariable("blocksId") int blocksId,
@@ -52,6 +59,10 @@ public class BlocksController {
         }
     }
 
+
+    /*
+    *   get applications in a specific blocks
+    * */
     @CheckLogin
     @GetMapping("/application/{blocksId}")
     public Object getBlocksApplication(@PathVariable("blocksId") int blocksId,
@@ -65,6 +76,9 @@ public class BlocksController {
         }
     }
 
+    /*
+    *   Approve blocks application
+    * */
     @CheckLogin
     @PostMapping("/application/approval/{blocksId}")
     public Object aproveBlocksApplication(@PathVariable("blocksId") int blocksId,

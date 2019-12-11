@@ -1,0 +1,47 @@
+package com.nyu.nextdoor.service;
+
+import com.nyu.nextdoor.mapper.FriendsApplicationMapper;
+import com.nyu.nextdoor.mapper.FriendsMapper;
+import com.nyu.nextdoor.model.Friends;
+import com.nyu.nextdoor.model.FriendsApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class FriendsService {
+    private FriendsMapper friendsMapper;
+    private FriendsApplicationMapper friendsApplicationMapper;
+
+    @Autowired
+    FriendsService(FriendsMapper friendsMapper, FriendsApplicationMapper friendsApplicationMapper) {
+        this.friendsMapper = friendsMapper;
+        this.friendsApplicationMapper = friendsApplicationMapper;
+    }
+
+    public List<Friends> getFriendsList(int userId) {
+        return this.friendsMapper.getFriendsList(userId);
+    }
+
+    public void applyFriends(FriendsApplication friendsApplication) {
+        this.friendsApplicationMapper.addNewApplication(friendsApplication);
+    }
+
+    public List<FriendsApplication> getSentApplicationList(int userId) {
+        return this.friendsApplicationMapper.getSentApplicationList(userId);
+    }
+
+    public List<FriendsApplication> getReceivedApplicationList(int userId) {
+        return this.friendsApplicationMapper.getReceivedApplicationList(userId);
+    }
+
+    public void approveFriendsApplication(FriendsApplication friendsApplication) {
+        this.friendsApplicationMapper.approveApplication(friendsApplication);
+    }
+
+    public void addFriends(int userId1, int userId2) {
+        this.friendsMapper.addFriends(userId1, userId2);
+    }
+
+}

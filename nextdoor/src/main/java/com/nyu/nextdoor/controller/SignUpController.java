@@ -20,8 +20,12 @@ public class SignUpController {
         this.userService = userService;
     }
 
+    /*
+    *   New user sign up
+    * */
     @PostMapping("")
     public Object signup(@RequestBody User user) {
+        // Check duplicate account name in advance
         if(userService.getUserByAccountName(user.getAccountName()) != null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         } else {

@@ -36,6 +36,9 @@ public class UserController {
         }
     }
 
+    /*
+    *   Get user info by token
+    * */
     @CheckLogin
     @GetMapping("")
     public Object getUser(@RequestHeader(value = "token") String token) throws AccessDeniedException {
@@ -49,6 +52,9 @@ public class UserController {
         }
     }
 
+    /*
+    *   Update user info
+    * */
     @CheckLogin
     @PostMapping("")
     public Object updateUser(@RequestBody User user,

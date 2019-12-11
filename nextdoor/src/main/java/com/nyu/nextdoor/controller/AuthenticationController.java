@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +24,10 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
+    /*
+    *   Get token or Sign in
+    *   TODO: Token should be expired every half an hour
+    * */
     @PostMapping("")
     public Object getToken(@RequestBody LoginUser user) {
         try {
@@ -40,8 +43,6 @@ public class AuthenticationController {
         } catch (Exception e) {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 
 }
