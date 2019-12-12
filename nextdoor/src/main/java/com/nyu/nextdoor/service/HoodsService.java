@@ -3,6 +3,7 @@ package com.nyu.nextdoor.service;
 import com.nyu.nextdoor.mapper.HoodsMapper;
 import com.nyu.nextdoor.model.Blocks;
 import com.nyu.nextdoor.model.Hoods;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class HoodsService {
     private HoodsMapper hoodsMapper;
     private BlocksServices blocksServices;
 
+    @Autowired
     HoodsService(HoodsMapper hoodsMapper, BlocksServices blocksServices) {
         this.hoodsMapper = hoodsMapper;
         this.blocksServices = blocksServices;
