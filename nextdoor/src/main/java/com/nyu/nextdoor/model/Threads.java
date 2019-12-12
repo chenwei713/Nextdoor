@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public class Threads {
     private Integer userId;
-    private Integer threadsId;
+    private String threadsId;
     private String subject;
     private String content;
     private Timestamp timestamp;
@@ -17,11 +17,11 @@ public class Threads {
         this.userId = userId;
     }
 
-    public Integer getThreadsId() {
+    public String getThreadsId() {
         return threadsId;
     }
 
-    public void setThreadsId(Integer threadsId) {
+    public void setThreadsId(String threadsId) {
         this.threadsId = threadsId;
     }
 

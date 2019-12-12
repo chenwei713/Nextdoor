@@ -2,6 +2,16 @@ package com.nyu.nextdoor.model;
 
 public class Blocks {
     private Integer blocksId;
+    private Integer hoodsId;
+
+    public Integer getHoodsId() {
+        return hoodsId;
+    }
+
+    public void setHoodsId(Integer hoodsId) {
+        this.hoodsId = hoodsId;
+    }
+
     private String blocksName;
     private String blocksDescription;
     private Double longitude1;

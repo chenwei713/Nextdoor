@@ -4,10 +4,19 @@ import java.sql.Timestamp;
 
 public class Message {
     private Integer userId;
+    private String threadsId;
     private Integer messageId;
     private Integer parentMessageId;
     private String content;
     private Timestamp timestamp;
+
+    public String getThreadsId() {
+        return threadsId;
+    }
+
+    public void setThreadsId(String threadsId) {
+        this.threadsId = threadsId;
+    }
 
     public Integer getUserId() {
         return userId;

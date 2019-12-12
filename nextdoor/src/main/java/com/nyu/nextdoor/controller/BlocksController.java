@@ -10,7 +10,6 @@ import com.nyu.nextdoor.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -31,8 +30,8 @@ public class BlocksController {
     }
 
     /*
-    *   get all blocks
-    * */
+     *   get all blocks
+     * */
     @CheckLogin
     @GetMapping("/all")
     public Object getAll() {
@@ -42,8 +41,8 @@ public class BlocksController {
 
 
     /*
-    *   send an application for blocks
-    * */
+     *   send an application for blocks
+     * */
     @CheckLogin
     @PostMapping("/application/{blocksId}")
     public Object applyBlocks(@PathVariable("blocksId") int blocksId,
@@ -61,14 +60,14 @@ public class BlocksController {
 
 
     /*
-    *   get applications in a specific blocks
-    * */
+     *   get applications in a specific blocks
+     * */
     @CheckLogin
     @GetMapping("/application/{blocksId}")
     public Object getBlocksApplication(@PathVariable("blocksId") int blocksId,
                                        @RequestHeader(value = "token") String token) throws AccessDeniedException {
         User user = authenticationService.getUserFromToken(token);
-        if(!blocksServices.checkUserInBlocks(user.getUserId(), blocksId)) {
+        if (!blocksServices.checkUserInBlocks(user.getUserId(), blocksId)) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         } else {
             List<BlocksApplication> blocksApplications = blocksServices.getBlocksApplications(blocksId);
@@ -77,15 +76,15 @@ public class BlocksController {
     }
 
     /*
-    *   Approve blocks application
-    * */
+     *   Approve blocks application
+     * */
     @CheckLogin
     @PostMapping("/application/approval/{blocksId}")
     public Object aproveBlocksApplication(@PathVariable("blocksId") int blocksId,
-                                       @RequestHeader(value = "token") String token) throws AccessDeniedException {
+                                          @RequestHeader(value = "token") String token) throws AccessDeniedException {
         User user = authenticationService.getUserFromToken(token);
 
-        if(!blocksServices.checkUserInBlocks(user.getUserId(), blocksId)) {
+        if (!blocksServices.checkUserInBlocks(user.getUserId(), blocksId)) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 

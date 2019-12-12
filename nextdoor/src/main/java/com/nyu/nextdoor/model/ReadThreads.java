@@ -1,9 +1,11 @@
 package com.nyu.nextdoor.model;
 
+import java.sql.Timestamp;
+
 public class ReadThreads {
     private Integer userId;
-    private Integer threadsId;
-    private Integer hasRead;
+    private String threadsId;
+    private Timestamp timestamp;
 
     public Integer getUserId() {
         return userId;
@@ -13,19 +15,20 @@ public class ReadThreads {
         this.userId = userId;
     }
 
-    public Integer getThreadsId() {
+
+    public String getThreadsId() {
         return threadsId;
     }
 
-    public void setThreadsId(Integer threadsId) {
+    public void setThreadsId(String threadsId) {
         this.threadsId = threadsId;
     }
 
-    public Integer getHasRead() {
-        return hasRead;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
-    public void setHasRead(Integer hasRead) {
-        this.hasRead = hasRead;
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

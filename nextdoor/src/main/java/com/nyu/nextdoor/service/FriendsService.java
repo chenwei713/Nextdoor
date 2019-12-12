@@ -44,4 +44,9 @@ public class FriendsService {
         this.friendsMapper.addFriends(userId1, userId2);
     }
 
+    public boolean checkFriends(int userId1, int userId2) {
+        Friends friends = this.friendsMapper.getFriends(userId1, userId2);
+        return !(friends == null);
+    }
+
 }

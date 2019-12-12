@@ -24,6 +24,10 @@ public class BlocksServices {
         return blocksMapper.getAllBlocks();
     }
 
+    public List<Integer> getUserIdsInBlocks(int blocksId) {
+        return blocksMapper.getUserIdsInBlocks(blocksId);
+    }
+
     public void applyBlocks(int userId, int blocksId) {
         blocksApplicationMapper.addNewApplication(userId, blocksId);
     }
@@ -38,7 +42,15 @@ public class BlocksServices {
         return blocksMapper.getUserBlocks(userId);
     }
 
+    public Blocks getBlocksById(int blocksId) {
+        return blocksMapper.getBlocksById(blocksId);
+    }
+
     public List<BlocksApplication> getBlocksApplications(int blocksId) {
         return blocksApplicationMapper.getBlocksApplications(blocksId);
+    }
+
+    public List<Blocks> getBlocksByHoodsId(int hoodsId) {
+        return blocksMapper.getBlocksByHoodsId(hoodsId);
     }
 }

@@ -64,9 +64,7 @@ public class FriendsController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        if(!application.getUserId1().equals(user.getUserId())) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
+        application.setUserId1(user.getUserId());
 
         User targetFriend = userService.getUserByID(application.getUserId2());
         if(targetFriend == null) {
