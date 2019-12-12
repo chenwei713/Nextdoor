@@ -4,6 +4,7 @@ import com.nyu.nextdoor.model.LoginUser;
 import com.nyu.nextdoor.model.User;
 import com.nyu.nextdoor.service.AuthenticationService;
 import com.nyu.nextdoor.service.UserService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,10 @@ public class AuthenticationController {
     public Object getToken(@RequestBody LoginUser user) {
         try {
             User userByAccountName = userService.getUserByAccountName(user.getAccountName());
-            if(userByAccountName == null || !userByAccountName.getPassword().equals(user.getPassword())) {
+            String password = user.getPassword();
+            String md5Hex = DigestUtils.md5Hex(password).toUpperCase();
+            user.setPassword(md5Hex);
+            if(userByAccountName == null || !md5Hex.equals(userByAccountName.getPassword())) {
                 return new ResponseEntity(HttpStatus.BAD_REQUEST);
             } else {
                 String token = authenticationService.getToken(user);

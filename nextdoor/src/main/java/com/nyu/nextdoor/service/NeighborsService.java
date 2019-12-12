@@ -24,5 +24,10 @@ public class NeighborsService {
         return this.neighborsMapper.getNeighborsList(userId);
     }
 
+    public boolean checkNeighbors(int userId1, int userId2) {
+        Neighbors neighbors = this.neighborsMapper.getNeighbors(userId1, userId2);
+        return neighbors != null;
+    }
+
 
 }

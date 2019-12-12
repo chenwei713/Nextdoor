@@ -1,6 +1,7 @@
 package com.nyu.nextdoor.controller;
 
 import com.nyu.nextdoor.annotation.CheckLogin;
+import com.nyu.nextdoor.model.Setting;
 import com.nyu.nextdoor.model.User;
 import com.nyu.nextdoor.service.AuthenticationService;
 import com.nyu.nextdoor.service.UserService;
@@ -67,6 +68,24 @@ public class UserController {
             int userId = userFromToken.getUserId();
             user.setUserId(userId);
             userService.updateUser(user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
+
+    /*
+     *   Update user setting
+     * */
+    @CheckLogin
+    @PostMapping("/setting")
+    public Object updateSetting(@RequestBody Setting setting,
+                             @RequestHeader(value = "token") String token) throws AccessDeniedException {
+        User userFromToken = authenticationService.getUserFromToken(token);
+
+        if(userFromToken == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        } else {
+            setting.setUserId(userFromToken.getUserId());
+            userService.updateSetting(setting);
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }

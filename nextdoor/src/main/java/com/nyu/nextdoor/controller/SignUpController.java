@@ -2,6 +2,7 @@ package com.nyu.nextdoor.controller;
 
 import com.nyu.nextdoor.model.User;
 import com.nyu.nextdoor.service.UserService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,15 @@ public class SignUpController {
         if(userService.getUserByAccountName(user.getAccountName()) != null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         } else {
+
+            String password = user.getPassword();
+            String md5Hex = DigestUtils.md5Hex(password).toUpperCase();
+            user.setPassword(md5Hex);
+
             userService.addNewUser(user);
+
+            User userNew = userService.getUserByAccountName(user.getAccountName());
+            userService.addSetting(userNew.getUserId());
             return new ResponseEntity(HttpStatus.OK);
         }
     }

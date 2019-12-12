@@ -19,4 +19,9 @@ public interface NeighborsMapper {
             "FROM nextdoor.neighbors " +
             "WHERE user1_id = #{userId}")
     List<Integer> getNeighborsList(Integer userId);
+
+    @Select("SELECT user1_id as userId1, user2_id as userId2 " +
+            "FROM nextdoor.neighbors " +
+            "WHERE user1_id = #{userId1} AND user2_id = #{userId2}")
+    Neighbors getNeighbors(Integer userId1, Integer userId2);
 }

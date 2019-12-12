@@ -19,15 +19,18 @@ public class ThreadsService {
     private BlocksServices blocksServices;
     private HoodsService hoodsService;
     private FriendsService friendsService;
+    private NeighborsService neighborsService;
 
     @Autowired
     ThreadsService(ThreadsMapper threadsMapper, MessageMapper messageMapper, SharingListService sharingListService,
-                   BlocksServices blocksServices, HoodsService hoodsService, FriendsService friendsService) {
+                   BlocksServices blocksServices, HoodsService hoodsService, FriendsService friendsService,
+                   NeighborsService neighborsService) {
         this.threadsMapper = threadsMapper;
         this.messageMapper = messageMapper;
         this.blocksServices = blocksServices;
         this.hoodsService = hoodsService;
         this.friendsService = friendsService;
+        this.neighborsService = neighborsService;
         this.sharingListService = sharingListService;
     }
 
@@ -130,6 +133,50 @@ public class ThreadsService {
             return false;
         }
         return friendsService.checkFriends(threadsOwnerId, userId);
+    }
+
+    public boolean checkNeighborsThreads(String threadsId, int userId) {
+        Threads threads = getThreadsById(threadsId);
+        if(threads == null) {
+            return false;
+        }
+        Integer threadsOwnerId = threads.getUserId();
+        if(threadsOwnerId == null) {
+            return false;
+        }
+        return neighborsService.checkNeighbors(userId, threadsOwnerId);
+    }
+
+    public boolean checkBlocksThreads(String threadsId, int userId) {
+        Threads threads = getThreadsById(threadsId);
+        if(threads == null) {
+            return false;
+        }
+        Integer threadsOwnerId = threads.getUserId();
+        if(threadsOwnerId == null) {
+            return false;
+        }
+
+        Integer ownerBlocksId = blocksServices.getUserBlocks(threadsOwnerId);
+        Integer userBlocksId = blocksServices.getUserBlocks(userId);
+
+        return ownerBlocksId != null && ownerBlocksId.equals(userBlocksId);
+    }
+
+    public boolean checkHoodsThreads(String threadsId, int userId) {
+        Threads threads = getThreadsById(threadsId);
+        if(threads == null) {
+            return false;
+        }
+        Integer threadsOwnerId = threads.getUserId();
+        if(threadsOwnerId == null) {
+            return false;
+        }
+
+        Integer ownerHoodsId = hoodsService.getUserHoods(threadsOwnerId);
+        Integer userHoodsId = hoodsService.getUserHoods(userId);
+
+        return ownerHoodsId != null && userHoodsId.equals(ownerHoodsId);
     }
 
 

@@ -1,5 +1,6 @@
 package com.nyu.nextdoor.mapper;
 
+import com.nyu.nextdoor.model.Setting;
 import com.nyu.nextdoor.model.User;
 import org.apache.ibatis.annotations.*;
 
@@ -27,8 +28,22 @@ public interface UserMapper {
             "VALUES" +
             "(#{userFirstName}, #{userLastName}, #{userStreet}, #{userCity}, #{userState}, #{longitude}," +
             " #{latitude}, #{accountName}, #{password}, #{telephoneNumber})")
-    //@Options(useGeneratedKeys = true, keyColumn = "user_id", keyProperty = "userId")
     void addNewUser(User user);
+
+    @Insert("INSERT INTO `nextdoor`.`setting` " +
+            "(`user_id`) " +
+            "VALUES " +
+            "(#{userId})")
+    void addSetting(Integer userId);
+
+    @Update("UPDATE `nextdoor`.`setting` " +
+            "SET " +
+            "`email_friends_feed` = #{emailFriendsFeed}, " +
+            "`email_neighbors_feed` = #{emailNeighborsFeed}, " +
+            "`email_blocks_feed` = #{emailBlocksFeed}, " +
+            "`email_hoods_feed` = #{emailHoodsFeed}, " +
+            "WHERE user_id = #{userId}")
+    void updateSetting(Setting setting);
 
     @Update("UPDATE `nextdoor`.`user` " +
             "SET" +
