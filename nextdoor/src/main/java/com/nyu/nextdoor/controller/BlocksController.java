@@ -52,10 +52,19 @@ public class BlocksController {
         if (user == null) {
             // TODO: Give more details about error messages
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+
+        //If there's no one in the blocks, no need to be approved
+        if(blocksServices.getUserIdsInBlocks(blocksId).size() == 0) {
+            blocksServices.addInBlocks(user.getUserId(), blocksId);
         } else {
             blocksServices.applyBlocks(user.getUserId(), blocksId);
-            return new ResponseEntity(HttpStatus.OK);
         }
+
+        return new ResponseEntity(HttpStatus.OK);
+
+
     }
 
 
@@ -79,19 +88,38 @@ public class BlocksController {
      *   Approve blocks application
      * */
     @CheckLogin
-    @PostMapping("/application/approval/{blocksId}")
-    public Object aproveBlocksApplication(@PathVariable("blocksId") int blocksId,
-                                          @RequestHeader(value = "token") String token) throws AccessDeniedException {
+    @PostMapping("/application/approval")
+    public Object aproveBlocksApplication(@RequestHeader(value = "token") String token,
+                                          @RequestBody BlocksApplication blocksApplication) throws AccessDeniedException {
         User user = authenticationService.getUserFromToken(token);
 
-        if (!blocksServices.checkUserInBlocks(user.getUserId(), blocksId)) {
+        if (!blocksServices.checkUserInBlocks(user.getUserId(), blocksApplication.getBlocksId())) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        // TODO: APPLICATION APPROVAL
-        //  Get application from db and find empty approval (Maybe need transaction)
-        //  add approval in it and check if this application should be approved
-        //  if should, approve it and update in_blocks table in db
+        int numberPeople = blocksServices.getUserIdsInBlocks(blocksApplication.getBlocksId()).size();
+        blocksApplication = blocksServices.getBlocksApplication(blocksApplication.getApplicationId());
+
+        if(blocksApplication.getApproval1() == null) {
+            blocksApplication.setApproval1(user.getUserId());
+            if(numberPeople == 1) {
+                blocksApplication.setIsApproved(1);
+                blocksServices.addInBlocks(blocksApplication.getUserId(), blocksApplication.getBlocksId());
+            }
+        } else if(blocksApplication.getApproval2() == null && !blocksApplication.getApproval1().equals(user.getUserId())) {
+            blocksApplication.setApproval2(user.getUserId());
+            if(numberPeople == 2) {
+                blocksApplication.setIsApproved(1);
+                blocksServices.addInBlocks(blocksApplication.getUserId(), blocksApplication.getBlocksId());
+            }
+        } else if(blocksApplication.getApproval3() == null && !blocksApplication.getApproval1().equals(user.getUserId())
+                && !blocksApplication.getApproval2().equals(user.getUserId())) {
+            blocksApplication.setApproval3(user.getUserId());
+            blocksApplication.setIsApproved(1);
+            blocksServices.addInBlocks(blocksApplication.getUserId(), blocksApplication.getBlocksId());
+        }
+        blocksServices.updateBlocksApplication(blocksApplication);
+
         return new ResponseEntity(HttpStatus.OK);
     }
 
