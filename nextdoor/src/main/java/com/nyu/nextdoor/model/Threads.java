@@ -7,6 +7,16 @@ public class Threads {
     private String threadsId;
     private String subject;
     private String content;
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     private Timestamp timestamp;
 
     public Integer getUserId() {

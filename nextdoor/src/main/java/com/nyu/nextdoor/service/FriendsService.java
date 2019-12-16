@@ -28,6 +28,10 @@ public class FriendsService {
         this.friendsApplicationMapper.addNewApplication(friendsApplication);
     }
 
+    public FriendsApplication getFriendsApplicationById(int friendsApplicationId) {
+        return this.friendsApplicationMapper.getFriendsApplicationById(friendsApplicationId);
+    }
+
     public List<FriendsApplication> getSentApplicationList(int userId) {
         return this.friendsApplicationMapper.getSentApplicationList(userId);
     }

@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -33,4 +34,10 @@ public interface FriendsApplicationMapper {
             "FROM nextdoor.friends_application " +
             "WHERE user2_id = #{userId}")
     List<FriendsApplication> getReceivedApplicationList(Integer userId);
+
+    @Select("SELECT application_id as applicationId, user1_id as userId1, user2_id as userId2, timestamp, notes, " +
+            "is_approved as isApproved " +
+            "FROM nextdoor.friends_application " +
+            "WHERE application_id = #{applicationId}")
+    FriendsApplication getFriendsApplicationById(Integer applicationId);
 }

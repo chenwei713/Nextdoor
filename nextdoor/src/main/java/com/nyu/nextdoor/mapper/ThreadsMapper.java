@@ -12,12 +12,12 @@ import java.util.List;
 public interface ThreadsMapper {
 
     @Insert("INSERT `nextdoor`.`thread` " +
-            "(`thread_id`, `user_id`,`subject`, `content`) " +
+            "(`thread_id`, `user_id`,`subject`, `content`, `image_url`) " +
             "VALUES " +
-            "(#{threadsId}, #{userId}, #{subject}, #{content})")
+            "(#{threadsId}, #{userId}, #{subject}, #{content}, #{imageUrl})")
     void addThreads(Threads threads);
 
-    @Select("SELECT thread_id as threadsId, user_id as userId, subject, timestamp, content " +
+    @Select("SELECT thread_id as threadsId, user_id as userId, subject, timestamp, content, image_url as imageUrl " +
             "FROM nextdoor.thread " +
             "WHERE thread_id = #{threadsId}")
     Threads getThreadsById(String threadsId);
@@ -38,5 +38,11 @@ public interface ThreadsMapper {
     @Delete("DELETE FROM `nextdoor`.`read_threads` " +
             "WHERE user_id = #{userId} AND thread_id = #{threadsId}")
     void deleteUnreadRecord(String threadsId, Integer userId);
+
+    @Select("SELECT thread_id " +
+            "FROM nextdoor.thread " +
+            "WHERE subject LIKE #{keyWords} OR content LIKE #{keyWords} " +
+            "ORDER BY timestamp DESC")
+    List<String> searchThreadsByKeyWords(String keyWords);
 
 }

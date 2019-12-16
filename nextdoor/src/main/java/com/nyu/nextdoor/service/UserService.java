@@ -16,7 +16,7 @@ public class UserService {
     }
 
     public void addNewUser(User user) {
-        userMapper.addNewUser(user);
+            userMapper.addNewUser(user);
     }
 
     public void addSetting(int userId) {

@@ -1,5 +1,6 @@
 package com.nyu.nextdoor.controller;
 
+import com.google.gson.Gson;
 import com.nyu.nextdoor.annotation.CheckLogin;
 import com.nyu.nextdoor.model.Friends;
 import com.nyu.nextdoor.model.FriendsApplication;
@@ -88,7 +89,18 @@ public class FriendsController {
         }
 
         List<FriendsApplication> friendsApplicationsList = friendsService.getReceivedApplicationList(user.getUserId());
-        return new ResponseEntity<>(friendsApplicationsList, HttpStatus.OK);
+        List<HashMap> responses = new ArrayList<>();
+
+        Gson gson = new Gson();
+        for(FriendsApplication friendsApplication: friendsApplicationsList) {
+            String jsonString = gson.toJson(friendsApplication);
+            HashMap response = gson.fromJson(jsonString, HashMap.class);
+            response.put("name", userService.getUserByID(friendsApplication.getUserId1()).getUserFirstName());
+            responses.add(response);
+        }
+
+
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
     /*
@@ -110,25 +122,23 @@ public class FriendsController {
     *   Approve a received application
     * */
     @CheckLogin
-    @PostMapping("/application/approval")
+    @PostMapping("/application/approval/{friendsApplicationId}")
     public Object approveApplication(@RequestHeader(value = "token") String token,
-                                     @RequestBody FriendsApplication application) throws AccessDeniedException {
+                                     @PathVariable("friendsApplicationId") int friendsApplicationId) throws AccessDeniedException {
         User user = authenticationService.getUserFromToken(token);
         if(user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        if(!application.getUserId2().equals(user.getUserId())) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
+        FriendsApplication friendsApplication = friendsService.getFriendsApplicationById(friendsApplicationId);
 
-        User sourceFriend = userService.getUserByID(application.getUserId1());
+        User sourceFriend = userService.getUserByID(friendsApplication.getUserId1());
         if(sourceFriend == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        friendsService.approveFriendsApplication(application);
-        friendsService.addFriends(application.getUserId1(), application.getUserId2());
+        friendsService.approveFriendsApplication(friendsApplication);
+        friendsService.addFriends(friendsApplication.getUserId1(), friendsApplication.getUserId2());
 
         return new ResponseEntity(HttpStatus.OK);
     }
