@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -33,31 +35,79 @@ public class NeighborsController {
         User user = authenticationService.getUserFromToken(token);
         if (user == null) return new ResponseEntity(HttpStatus.BAD_REQUEST);
 
-        List<Integer> neighborsList = neighborsService.getNeighborsList(user.getUserId());
+        List<Integer> neighborsIdsList = neighborsService.getNeighborsList(user.getUserId());
+        List<User> neighborsList = new ArrayList<>();
+        for(Integer i: neighborsIdsList) {
+            neighborsList.add(userService.getUserByID(i));
+        }
 
         return new ResponseEntity<>(neighborsList, HttpStatus.OK);
     }
 
     @CheckLogin
-    @PostMapping("/follow")
+    @PostMapping("/follow/{target_user_id}")
     public Object follow(@RequestHeader(value = "token") String token,
-                         @RequestBody Neighbors neighbors) throws AccessDeniedException {
+                         @PathVariable("target_user_id") int target_user_id) throws AccessDeniedException {
         User user = authenticationService.getUserFromToken(token);
         if(user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        User targetNeighbor = userService.getUserByID(neighbors.getUserId2());
+        User targetNeighbor = userService.getUserByID(target_user_id);
         if(targetNeighbor == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
+        if(neighborsService.checkNeighbors(user.getUserId(), target_user_id)) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        Neighbors neighbors = new Neighbors();
         neighbors.setUserId1(user.getUserId());
+        neighbors.setUserId2(target_user_id);
 
         neighborsService.follow(neighbors);
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @CheckLogin
+    @PostMapping("/unfollow/{target_user_id}")
+    public Object unFollow(@RequestHeader(value = "token") String token,
+                         @PathVariable("target_user_id") int target_user_id) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+        if(user == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        User targetNeighbor = userService.getUserByID(target_user_id);
+        if(targetNeighbor == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        if(!neighborsService.checkNeighbors(user.getUserId(), target_user_id)) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        Neighbors neighbors = new Neighbors();
+        neighbors.setUserId1(user.getUserId());
+        neighbors.setUserId2(target_user_id);
+
+        neighborsService.unfollow(neighbors);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @CheckLogin
+    @GetMapping("/check/{target_id}")
+    public Object isFollow(@RequestHeader(value = "token") String token,
+                           @PathVariable("target_id") int target_id) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+        HashMap<String, Integer> response = new HashMap<>();
+        response.put("IsFollow", neighborsService.checkNeighbors(user.getUserId(), target_id)? 1: 0);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 
 }

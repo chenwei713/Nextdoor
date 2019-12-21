@@ -20,6 +20,10 @@ public class NeighborsService {
         this.neighborsMapper.follow(neighbors);
     }
 
+    public void unfollow(Neighbors neighbors) {
+        this.neighborsMapper.unfollow(neighbors);
+    }
+
     public List<Integer> getNeighborsList(int userId) {
         return this.neighborsMapper.getNeighborsList(userId);
     }
@@ -27,6 +31,10 @@ public class NeighborsService {
     public boolean checkNeighbors(int userId1, int userId2) {
         Neighbors neighbors = this.neighborsMapper.getNeighbors(userId1, userId2);
         return neighbors != null;
+    }
+
+    public void deleteAllNeighbors(int userId) {
+        neighborsMapper.deleteAllNeighbors(userId);
     }
 
 

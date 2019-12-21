@@ -62,10 +62,12 @@ public class BlocksServices {
         return blocksApplicationMapper.getBlocksApplication(blocksApplicationId);
     }
 
-
-
     public List<Blocks> getBlocksByHoodsId(int hoodsId) {
         return blocksMapper.getBlocksByHoodsId(hoodsId);
+    }
+
+    public void deleteUserBlocks(int userId) {
+        blocksMapper.deleteUserBlocks(userId);
     }
 
 }

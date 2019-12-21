@@ -1,10 +1,7 @@
 package com.nyu.nextdoor.mapper;
 
 import com.nyu.nextdoor.model.FriendsApplication;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +19,10 @@ public interface FriendsApplicationMapper {
             "`is_approved` = 1 " +
             "WHERE application_id = #{applicationId}")
     void approveApplication(FriendsApplication application);
+
+    @Delete("DELETE FROM `nextdoor`.`friends_application` " +
+            "WHERE application_id = #{applicationId}")
+    void declineApplication(FriendsApplication application);
 
     @Select("SELECT application_id as applicationId, user1_id as userId1, user2_id as userId2, timestamp, notes, " +
             "is_approved as isApproved " +

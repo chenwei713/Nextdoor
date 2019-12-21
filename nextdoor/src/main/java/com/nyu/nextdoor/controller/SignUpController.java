@@ -51,12 +51,12 @@ public class SignUpController {
         String md5Hex = DigestUtils.md5Hex(password).toUpperCase();
         user.setPassword(md5Hex);
 
+        user.setUserPhotoUrl("/Users/xiechenwei/Desktop/d/default.jpg");
+
         userService.addNewUser(user);
 
         User userNew = userService.getUserByAccountName(user.getAccountName());
         userService.addSetting(userNew.getUserId());
-
-        friendsService.addFriends(userNew.getUserId(), userNew.getUserId());
 
         return new ResponseEntity(HttpStatus.OK);
     }

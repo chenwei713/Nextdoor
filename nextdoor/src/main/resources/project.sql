@@ -129,13 +129,14 @@ CREATE TABLE `sharing_list` (
   `thread_id` varchar(128) NOT NULL,
   `sharing_user_id` int(11) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`thread_id`)
+  PRIMARY KEY (`thread_id`, `sharing_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `thread`;
 CREATE TABLE `thread` (
   `thread_id` varchar(128) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `image_url` varchar(128) DEFAULT NULL,
   `subject` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `content` varchar(256) COLLATE utf8mb4_general_ci NOT NULL,
@@ -153,7 +154,7 @@ CREATE TABLE `user` (
   `longitude` double NOT NULL,
   `latitude` double NOT NULL,
   `user_profile` varchar(512) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `user_photo_url` varchar(45) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `user_photo_url` varchar(512) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `account_name` varchar(45) COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(45) COLLATE utf8mb4_general_ci NOT NULL,
   `telephone_number` varchar(45) COLLATE utf8mb4_general_ci NOT NULL,

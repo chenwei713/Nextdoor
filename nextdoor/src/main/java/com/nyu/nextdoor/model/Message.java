@@ -4,6 +4,16 @@ import java.sql.Timestamp;
 
 public class Message {
     private Integer userId;
+    private String userName;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     private String threadsId;
     private Integer messageId;
     private Integer parentMessageId;

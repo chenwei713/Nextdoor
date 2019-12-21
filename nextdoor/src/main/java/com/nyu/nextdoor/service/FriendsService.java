@@ -44,6 +44,10 @@ public class FriendsService {
         this.friendsApplicationMapper.approveApplication(friendsApplication);
     }
 
+    public void declineFriendsApplication(FriendsApplication friendsApplication) {
+        this.friendsApplicationMapper.declineApplication(friendsApplication);
+    }
+
     public void addFriends(int userId1, int userId2) {
         this.friendsMapper.addFriends(userId1, userId2);
     }
@@ -51,6 +55,14 @@ public class FriendsService {
     public boolean checkFriends(int userId1, int userId2) {
         Friends friends = this.friendsMapper.getFriends(userId1, userId2);
         return !(friends == null);
+    }
+
+    public void deleteFriends(int userId1, int userId2) {
+        this.friendsMapper.deleteFriends(userId1, userId2);
+    }
+
+    public void deleteAllFriends(int userId) {
+        friendsMapper.deleteAllFriends(userId);
     }
 
 }

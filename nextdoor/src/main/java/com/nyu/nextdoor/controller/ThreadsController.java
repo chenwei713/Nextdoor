@@ -3,7 +3,12 @@ package com.nyu.nextdoor.controller;
 import com.nyu.nextdoor.annotation.CheckLogin;
 import com.nyu.nextdoor.model.*;
 import com.nyu.nextdoor.service.*;
-import org.apache.commons.codec.binary.Base64;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,13 +68,13 @@ public class ThreadsController {
         if(threadsRequest.getImageBase64() != null) {
             // Use constant later
             String folder = "/Users/xiechenwei/Desktop/NYU_2019Fall/github_nextdoor/data/";
-            String[] base64Image = threadsRequest.getImageBase64().split(",");
-            byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image[1]);
-            String imageUrl = folder + threadsId + ".jpeg";
-            File file = new File(imageUrl);
-            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file));
-            outputStream.write(imageBytes);
-            threads.setImageUrl(imageUrl);
+            String imageUrl = threadsId + ".jpg";
+            byte[] decodedImg = Base64.getDecoder()
+                    .decode(threadsRequest.getImageBase64().split(",")[1].getBytes(StandardCharsets.UTF_8));
+            Path destinationFile = Paths.get(folder, imageUrl);
+            Files.write(destinationFile, decodedImg);
+
+            threads.setImageUrl(folder + imageUrl);
         }
         threadsService.addThreads(threads);
 
@@ -105,12 +110,18 @@ public class ThreadsController {
             FileInputStream fileInputStreamReader = new FileInputStream(file);
             byte[] bytes = new byte[(int)file.length()];
             fileInputStreamReader.read(bytes);
-            String base64 = new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8);
+            String base64 = new String(Base64.getEncoder().encode(bytes), StandardCharsets.UTF_8);
             threads.setImageUrl(base64);
         }
 
         HashMap<String, Object> response = new HashMap<>();
         List<Message> messages = threadsService.getCommentsByThreadsId(threadsId);
+        for(Message message: messages) {
+            User owner = userService.getUserByID(message.getUserId());
+            message.setUserName(owner.getUserFirstName() + " " + owner.getUserLastName());
+        }
+        User threadOwner = userService.getUserByID(threads.getUserId());
+        threads.setUserName(threadOwner.getUserFirstName() + " " + threadOwner.getUserLastName());
         response.put("threads", threads);
         response.put("messages", messages);
 
@@ -147,7 +158,7 @@ public class ThreadsController {
     * */
     @CheckLogin
     @GetMapping("/feeds/friends")
-    public Object getFriendsFeeds(@RequestHeader(value = "token") String token) throws AccessDeniedException {
+    public Object getFriendsFeeds(@RequestHeader(value = "token") String token) throws IOException {
         User user = authenticationService.getUserFromToken(token);
         if(user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -185,7 +196,13 @@ public class ThreadsController {
             }
         }
 
-        return new ResponseEntity<>(resultList, HttpStatus.OK);
+        List<HashMap<String, Object>> response = new ArrayList<>();
+        for(String id: resultList) {
+            HashMap<String, Object> res = threadsService.getThreadsResponse(user, id);
+            response.add(res);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /*
@@ -193,7 +210,7 @@ public class ThreadsController {
      * */
     @CheckLogin
     @GetMapping("/feeds/neighbors")
-    public Object getNeighborsFeeds(@RequestHeader(value = "token") String token) throws AccessDeniedException {
+    public Object getNeighborsFeeds(@RequestHeader(value = "token") String token) throws IOException {
         User user = authenticationService.getUserFromToken(token);
         if(user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -231,7 +248,13 @@ public class ThreadsController {
             }
         }
 
-        return new ResponseEntity<>(resultList, HttpStatus.OK);
+        List<HashMap<String, Object>> response = new ArrayList<>();
+        for(String id: resultList) {
+            HashMap<String, Object> res = threadsService.getThreadsResponse(user, id);
+            response.add(res);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
@@ -241,7 +264,7 @@ public class ThreadsController {
      * */
     @CheckLogin
     @GetMapping("/feeds/blocks")
-    public Object getBlocksFeeds(@RequestHeader(value = "token") String token) throws AccessDeniedException {
+    public Object getBlocksFeeds(@RequestHeader(value = "token") String token) throws IOException {
         User user = authenticationService.getUserFromToken(token);
         if(user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -279,7 +302,13 @@ public class ThreadsController {
             }
         }
 
-        return new ResponseEntity<>(resultList, HttpStatus.OK);
+        List<HashMap<String, Object>> response = new ArrayList<>();
+        for(String id: resultList) {
+            HashMap<String, Object> res = threadsService.getThreadsResponse(user, id);
+            response.add(res);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
@@ -288,7 +317,7 @@ public class ThreadsController {
      * */
     @CheckLogin
     @GetMapping("/feeds/hoods")
-    public Object getHoodsFeeds(@RequestHeader(value = "token") String token) throws AccessDeniedException {
+    public Object getHoodsFeeds(@RequestHeader(value = "token") String token) throws IOException {
         User user = authenticationService.getUserFromToken(token);
         if(user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -326,7 +355,13 @@ public class ThreadsController {
             }
         }
 
-        return new ResponseEntity<>(resultList, HttpStatus.OK);
+        List<HashMap<String, Object>> response = new ArrayList<>();
+        for(String id: resultList) {
+            HashMap<String, Object> res = threadsService.getThreadsResponse(user, id);
+            response.add(res);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
@@ -353,7 +388,57 @@ public class ThreadsController {
         return new ResponseEntity<>(readableTreads, HttpStatus.OK);
     }
 
+    /*
+    *   Get threads group by blocks
+    * */
+    @CheckLogin
+    @GetMapping("/groupbyBlocks")
+    public Object groupbyBlocks(@RequestHeader(value = "token") String token) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+        Integer hoodsId = hoodsService.getUserHoods(user.getUserId());
+        if(hoodsId == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        List<BlocksGroup> blocksGroupList = threadsService.getThreadsGroupByBlocks(user.getUserId(), hoodsId);
+
+        for(BlocksGroup blocksGroup: blocksGroupList) {
+            Blocks blocks = blocksServices.getBlocksById(blocksGroup.getBlocksId());
+            blocksGroup.setLatitude(blocks.getLatitude1() / 2.0 + blocks.getLatitude2() / 2.0);
+            blocksGroup.setLongitude(blocks.getLongitude1() / 2.0 + blocks.getLongitude2() / 2.0);
+        }
+
+        return new ResponseEntity<>(blocksGroupList, HttpStatus.OK);
 
 
+    }
+
+    /*
+     *   Blocks Feeds: Get threads posted in Blocks
+     * */
+    @CheckLogin
+    @GetMapping("/feeds/blocks/{blocks_id}")
+    public Object getFeedsByBlocksId(@RequestHeader(value = "token") String token,
+                                     @PathVariable("blocks_id") Integer blocks_id) throws IOException {
+        User user = authenticationService.getUserFromToken(token);
+        if(user == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        List<String> resultList = threadsService.getUnreadThreadsIdByBlocksId(user.getUserId(), blocks_id);
+
+        for(String threadsId: resultList) {
+            threadsService.deleteUnreadRecord(threadsId, user.getUserId());
+        }
+
+        List<HashMap<String, Object>> response = new ArrayList<>();
+        for(String id: resultList) {
+            HashMap<String, Object> res = threadsService.getThreadsResponse(user, id);
+            response.add(res);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.nyu.nextdoor.mapper;
 
 import com.nyu.nextdoor.model.Blocks;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -42,6 +43,10 @@ public interface BlocksMapper {
             "FROM nextdoor.blocks " +
             "WHERE hoods_id = #{hoodsId}")
     List<Blocks> getBlocksByHoodsId(Integer hoodsId);
+
+    @Delete("DELETE FROM `nextdoor`.`in_blocks` " +
+            "WHERE user_id = #{userId}")
+    void deleteUserBlocks(Integer userId);
 
 
 }

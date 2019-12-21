@@ -1,11 +1,13 @@
 package com.nyu.nextdoor.mapper;
 
+import com.nyu.nextdoor.model.BlocksGroup;
 import com.nyu.nextdoor.model.Threads;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Mapper
@@ -44,5 +46,16 @@ public interface ThreadsMapper {
             "WHERE subject LIKE #{keyWords} OR content LIKE #{keyWords} " +
             "ORDER BY timestamp DESC")
     List<String> searchThreadsByKeyWords(String keyWords);
+
+    @Select("SELECT b.blocks_id as blocksId, COUNT(t.thread_id) as threadsNum " +
+            "FROM nextdoor.read_threads as r, nextdoor.thread as t, nextdoor.in_blocks as i, nextdoor.blocks as b " +
+            "WHERE r.user_id = #{userId} AND r.thread_id = t.thread_id AND t.user_id = i.user_id AND i.blocks_id = b.blocks_id AND b.hoods_id = #{hoodsId} " +
+            "GROUP BY b.blocks_id ")
+    List<BlocksGroup> getThreadsGroupByBlocks(Integer userId, Integer hoodsId);
+
+    @Select("SELECT r.thread_id " +
+            "FROM nextdoor.read_threads as r, nextdoor.thread as t, nextdoor.in_blocks as i " +
+            "WHERE r.user_id = #{userId} AND r.thread_id = t.thread_id AND i.blocks_id = #{blocksId} AND i.user_id = t.user_id ")
+    List<String> getUnreadThreadsIdByBlocksId(Integer userId, Integer blocksId);
 
 }

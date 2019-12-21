@@ -6,9 +6,7 @@ import com.nyu.nextdoor.annotation.CheckLogin;
 import com.nyu.nextdoor.model.Blocks;
 import com.nyu.nextdoor.model.BlocksApplication;
 import com.nyu.nextdoor.model.User;
-import com.nyu.nextdoor.service.AuthenticationService;
-import com.nyu.nextdoor.service.BlocksServices;
-import com.nyu.nextdoor.service.UserService;
+import com.nyu.nextdoor.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +24,18 @@ public class BlocksController {
     private UserService userService;
     private BlocksServices blocksServices;
     private AuthenticationService authenticationService;
+    private FriendsService friendsService;
+    private NeighborsService neighborsService;
 
     @Autowired
-    BlocksController(BlocksServices blocksServices, UserService userService, AuthenticationService authenticationService) {
+    BlocksController(BlocksServices blocksServices, UserService userService,
+                     AuthenticationService authenticationService, FriendsService friendsService,
+                     NeighborsService neighborsService) {
         this.blocksServices = blocksServices;
         this.userService = userService;
+        this.friendsService = friendsService;
         this.authenticationService = authenticationService;
+        this.neighborsService = neighborsService;
     }
 
     /*
@@ -68,7 +72,6 @@ public class BlocksController {
         User user = authenticationService.getUserFromToken(token);
 
         if (user == null) {
-            // TODO: Give more details about error messages
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
@@ -193,8 +196,12 @@ public class BlocksController {
         }
 
         List<Integer> userIdsInBlocks = blocksServices.getUserIdsInBlocks(blocksId);
+        List<User> userInBlocks = new ArrayList<>();
+        for(Integer i: userIdsInBlocks) {
+            userInBlocks.add(userService.getUserByID(i));
+        }
 
-        return new ResponseEntity<>(userIdsInBlocks, HttpStatus.OK);
+        return new ResponseEntity<>(userInBlocks, HttpStatus.OK);
 
     }
 
@@ -209,6 +216,37 @@ public class BlocksController {
         Map<String, Integer> response = new HashMap<>();
         response.put("blocksId", blocksId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+    *   Quit blocks
+    * */
+    @CheckLogin
+    @PostMapping("/drop")
+    public Object drop(@RequestHeader(value = "token") String token) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+        blocksServices.deleteUserBlocks(user.getUserId());
+
+        if(blocksServices.getUserBlocks(user.getUserId()) != null) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        friendsService.deleteAllFriends(user.getUserId());
+        //TODO： DELETE neighbor
+        neighborsService.deleteAllNeighbors(user.getUserId());
+
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /*
+    *   Get block info by id
+    * */
+    @CheckLogin
+    @GetMapping("{blocksId}")
+    public Object getBlocksInfo(@RequestHeader(value = "token") String token, @PathVariable("blocksId") int blocksId) throws AccessDeniedException {
+        Blocks blocks = blocksServices.getBlocksById(blocksId);
+        return new ResponseEntity<>(blocks, HttpStatus.OK);
     }
 
 }

@@ -2,14 +2,20 @@ package com.nyu.nextdoor.service;
 
 import com.nyu.nextdoor.mapper.MessageMapper;
 import com.nyu.nextdoor.mapper.ThreadsMapper;
-import com.nyu.nextdoor.model.Blocks;
-import com.nyu.nextdoor.model.Message;
-import com.nyu.nextdoor.model.SharingList;
-import com.nyu.nextdoor.model.Threads;
+import com.nyu.nextdoor.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -22,11 +28,12 @@ public class ThreadsService {
     private FriendsService friendsService;
     private NeighborsService neighborsService;
     private EmailService emailService;
+    private UserService userService;
 
     @Autowired
     ThreadsService(ThreadsMapper threadsMapper, MessageMapper messageMapper, SharingListService sharingListService,
                    BlocksServices blocksServices, HoodsService hoodsService, FriendsService friendsService,
-                   NeighborsService neighborsService, EmailService emailService) {
+                   NeighborsService neighborsService, EmailService emailService, UserService userService) {
         this.threadsMapper = threadsMapper;
         this.messageMapper = messageMapper;
         this.blocksServices = blocksServices;
@@ -35,6 +42,7 @@ public class ThreadsService {
         this.neighborsService = neighborsService;
         this.sharingListService = sharingListService;
         this.emailService = emailService;
+        this.userService = userService;
     }
 
     public void addThreads(Threads threads) {
@@ -101,6 +109,10 @@ public class ThreadsService {
             }
         } else {
             userIdList = new ArrayList<>();
+            SharingList sharingSelf = new SharingList();
+            sharingSelf.setThreadsId(threadsId);
+            sharingSelf.setUserId(userId);
+            sharingList.add(sharingSelf);
             for(SharingList sharing: sharingList) {    // target people
                 userIdList.add(sharing.getUserId());
                 addUnreadRecord(sharing.getUserId(), threadsId);
@@ -110,14 +122,12 @@ public class ThreadsService {
         }
 
         // Send email to all
-        // emailService.sendEmail(userId, userIdList);
-
-
-
+        emailService.sendEmail(userId, userIdList);
     }
 
     public void updateUnreadRecords(List<SharingList> sharingList, String threadsId) {
         for(SharingList sharing: sharingList) {
+            deleteUnreadRecord(sharing.getThreadsId(), sharing.getUserId());
             addUnreadRecord(sharing.getUserId(), threadsId);
         }
     }
@@ -192,6 +202,39 @@ public class ThreadsService {
 
     public List<Message> getCommentsByThreadsId(String threadsId) {
         return this.messageMapper.getCommentsByThreadsId(threadsId);
+    }
+
+    public List<BlocksGroup> getThreadsGroupByBlocks(Integer userId, Integer hoodsId) {
+        return this.threadsMapper.getThreadsGroupByBlocks(userId, hoodsId);
+    }
+
+    public List<String> getUnreadThreadsIdByBlocksId(Integer userId, Integer blocksId) {
+        return this.threadsMapper.getUnreadThreadsIdByBlocksId(userId, blocksId);
+    }
+
+    public HashMap<String, Object> getThreadsResponse(User user, String threadsId) throws IOException {
+        Threads threads = getThreadsById(threadsId);
+
+        if(threads.getImageUrl() != null) {
+            File file =  new File(threads.getImageUrl());
+            FileInputStream fileInputStreamReader = new FileInputStream(file);
+            byte[] bytes = new byte[(int)file.length()];
+            fileInputStreamReader.read(bytes);
+            String base64 = new String(Base64.getEncoder().encode(bytes), StandardCharsets.UTF_8);
+            threads.setImageUrl(base64);
+        }
+
+        HashMap<String, Object> response = new HashMap<>();
+        List<Message> messages = getCommentsByThreadsId(threadsId);
+        for(Message message: messages) {
+            User owner = userService.getUserByID(message.getUserId());
+            message.setUserName(owner.getUserFirstName() + " " + owner.getUserLastName());
+        }
+        User threadOwner = userService.getUserByID(threads.getUserId());
+        threads.setUserName(threadOwner.getUserFirstName() + " " + threadOwner.getUserLastName());
+        response.put("threads", threads);
+        response.put("messages", messages);
+        return response;
     }
 
 

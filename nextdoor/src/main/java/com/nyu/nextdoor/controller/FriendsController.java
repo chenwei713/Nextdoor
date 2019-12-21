@@ -57,15 +57,17 @@ public class FriendsController {
     *   Post a new application for friends
     * */
     @CheckLogin
-    @PostMapping("/application")
+    @PostMapping("/application/{target_id}")
     public Object applyFriends(@RequestHeader(value = "token") String token,
-                               @RequestBody FriendsApplication application) throws AccessDeniedException {
+                               @RequestBody FriendsApplication application,
+                               @PathVariable("target_id") int target_id) throws AccessDeniedException {
         User user = authenticationService.getUserFromToken(token);
         if (user == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
         application.setUserId1(user.getUserId());
+        application.setUserId2(target_id);
 
         User targetFriend = userService.getUserByID(application.getUserId2());
         if(targetFriend == null) {
@@ -141,6 +143,58 @@ public class FriendsController {
         friendsService.addFriends(friendsApplication.getUserId1(), friendsApplication.getUserId2());
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+
+    @CheckLogin
+    @PostMapping("/application/decline/{friendsApplicationId}")
+    public Object declineApplication(@RequestHeader(value = "token") String token,
+                                     @PathVariable("friendsApplicationId") int friendsApplicationId) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+        if(user == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        FriendsApplication friendsApplication = friendsService.getFriendsApplicationById(friendsApplicationId);
+
+        User sourceFriend = userService.getUserByID(friendsApplication.getUserId1());
+        if(sourceFriend == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        friendsService.declineFriendsApplication(friendsApplication);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /*
+    *   Check if two people friends
+    * */
+    @CheckLogin
+    @GetMapping("/check/{target_id}")
+    public Object checkFriends(@RequestHeader(value = "token") String token,
+                               @PathVariable("target_id") int target_id) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+        HashMap<String, Integer> response = new HashMap<>();
+        response.put("IsFriends", friendsService.checkFriends(user.getUserId(), target_id)? 1: 0);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    /*
+    *   Delete friends
+    * */
+    @CheckLogin
+    @PostMapping("/delete/{target_id}")
+    public Object deleteFriends(@RequestHeader(value = "token") String token,
+                               @PathVariable("target_id") int target_id) throws AccessDeniedException {
+        User user = authenticationService.getUserFromToken(token);
+
+        if(!friendsService.checkFriends(user.getUserId(), target_id)) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        friendsService.deleteFriends(user.getUserId(), target_id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

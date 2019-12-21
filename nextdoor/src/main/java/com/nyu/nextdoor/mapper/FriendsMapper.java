@@ -1,6 +1,8 @@
 package com.nyu.nextdoor.mapper;
 
 import com.nyu.nextdoor.model.Friends;
+import com.nyu.nextdoor.model.Neighbors;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -25,4 +27,13 @@ public interface FriendsMapper {
             "WHERE user1_id = #{userId1} AND user2_id = #{userId2} OR " +
             "user2_id = #{userId1} AND user1_id = #{userId2}")
     Friends getFriends(Integer userId1, Integer userId2);
+
+    @Delete("DELETE FROM `nextdoor`.`friends` " +
+            "WHERE user1_id = #{userId1} AND user2_id = #{userId2} OR " +
+            "user1_id = #{userId2} AND user2_id = #{userId1}")
+    void deleteFriends(Integer userId1, Integer userId2);
+
+    @Delete("DELETE FROM `nextdoor`.`friends` " +
+            "WHERE user1_id = #{userId} OR user2_id = #{userId}")
+    void deleteAllFriends(Integer userId);
 }

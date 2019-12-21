@@ -5,6 +5,12 @@ import com.nyu.nextdoor.model.Setting;
 import com.nyu.nextdoor.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Encoder;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class UserService {
@@ -37,8 +43,25 @@ public class UserService {
         return userMapper.getUserByAccountName(user);
     }
 
-    public void updateUser(User user) {
-        userMapper.updateUser(user);
+    public void updateUserInfo(User user) {
+        userMapper.updateUserInfo(user);
+    }
+
+    public void updateUserAddress(User user) {
+        userMapper.updateUserAddress(user);
+    }
+
+    public void updatePhoto(Integer userId, String userPhotoUrl) {
+        userMapper.updateUserPhoto(userId, userPhotoUrl);
+    }
+
+    public String getImageBase64(User user) throws IOException {
+        String imageUrl = user.getUserPhotoUrl();
+        InputStream file = new FileInputStream(imageUrl);
+        byte[] data = new byte[file.available()];
+        file.read(data);
+        BASE64Encoder encoder = new BASE64Encoder();
+        return encoder.encode(data);
     }
 
 }

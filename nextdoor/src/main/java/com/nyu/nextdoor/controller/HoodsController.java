@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -45,8 +46,12 @@ public class HoodsController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-        List<Integer> userIdsInHoods = hoodsServices.getUserIdsInHoods(user.getUserId());
-        return new ResponseEntity<>(userIdsInHoods, HttpStatus.OK);
+        List<Integer> userIdsInHoods = hoodsServices.getUserIdsInHoods(hoodsId);
+        List<User> userInHoods = new ArrayList<>();
+        for(Integer i: userIdsInHoods) {
+            userInHoods.add(userService.getUserByID(i));
+        }
+        return new ResponseEntity<>(userInHoods, HttpStatus.OK);
     }
 
 }

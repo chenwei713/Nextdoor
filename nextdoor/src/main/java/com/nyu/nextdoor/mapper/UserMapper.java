@@ -24,10 +24,10 @@ public interface UserMapper {
 
     @Insert("INSERT INTO `nextdoor`.`user` " +
             "(`user_first_name`, `user_last_name`, `user_street`, `user_city`, `user_state`, `longitude`, " +
-            "`latitude`, `account_name`, `password`, `telephone_number`)" +
+            "`latitude`, `account_name`, `password`, `telephone_number`, `user_photo_url`) " +
             "VALUES" +
             "(#{userFirstName}, #{userLastName}, #{userStreet}, #{userCity}, #{userState}, #{longitude}," +
-            " #{latitude}, #{accountName}, #{password}, #{telephoneNumber})")
+            " #{latitude}, #{accountName}, #{password}, #{telephoneNumber}, #{userPhotoUrl})")
     void addNewUser(User user);
 
     @Insert("INSERT INTO `nextdoor`.`setting` " +
@@ -46,18 +46,28 @@ public interface UserMapper {
     void updateSetting(Setting setting);
 
     @Update("UPDATE `nextdoor`.`user` " +
-            "SET" +
+            "SET " +
             "`user_first_name` = #{userFirstName}, " +
             "`user_last_name` = #{userLastName}, " +
+            "`user_profile` = #{userProfile}, " +
+            "`telephone_number` = #{telephoneNumber} " +
+            "WHERE user_id = #{userId}")
+    void updateUserInfo(User user);
+
+    @Update("UPDATE `nextdoor`.`user` " +
+            "SET " +
             "`user_street` = #{userStreet}, " +
             "`user_city` = #{userCity}, " +
             "`user_state` = #{userState}, " +
             "`longitude` = #{longitude}, " +
-            "`latitude` = #{latitude}, " +
-            "`user_profile` = #{userProfile}, " +
-            "`user_photo_url` = #{userPhotoUrl}, " +
-            "`telephone_number` = #{telephoneNumber} " +
+            "`latitude` = #{latitude} " +
             "WHERE user_id = #{userId}")
-    void updateUser(User user);
+    void updateUserAddress(User user);
+
+    @Update("UPDATE `nextdoor`.`user` " +
+            "SET " +
+            "`user_photo_url` = #{userPhotoUrl} " +
+            "WHERE user_id = #{userId}")
+    void updateUserPhoto(Integer userId, String userPhotoUrl);
 
 }
